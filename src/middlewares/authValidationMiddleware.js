@@ -1,6 +1,10 @@
 import db from "../database/db.js";
-async function authMiddleware(req, res, next) {
-  const userExists = await db.collection("users").findOne({ email: email });
-  if (userExists) return res.sendStatus(409);
-  
+export async function sessionAuthMiddleware(req, res, next) {
+  const token = req.headers.authorization?.replace("Bearer ", "");
+  const session = await db.collection("sessions").findOne({ token });
+  if (!session) return res.sendStatus(401);
+
+  res.locals.session = session;
+  //Pasa para o Controller
+  next();
 }
