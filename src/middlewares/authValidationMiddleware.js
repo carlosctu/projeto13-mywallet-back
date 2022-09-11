@@ -1,19 +1,26 @@
 import db from "../database/db.js";
-import * as dataSchema from "../schemas/dataSchemas.js";
+import * as authSchema from "../schemas/authSchemas.js";
 
-export async function sessionAuthMiddleware(req, res, next) {
-  const validation = dataSchema.transactionSchema.validate(req.body, {
-    abortEarly: false,
-  });
+export async function authValidationMiddlewarre(req, res, next) {
+  let validation;
+  const { email } = req.body;
+  const userExists = await db.collection("users").findOne({ email });
+
+  if (Object.keys(req.body).length === 3) {
+    if (userExists) return res.sendStatus(409);
+    validation = authSchema.signUpSchema.validate(req.body, {
+      abortEarly: false,
+    });
+  } else {
+    validation = authSchema.signInSchema.validate(req.body, {
+      abortEarly: false,
+    });
+  }
+
   if (validation.error) {
     const errors = validation.error.details.map((errors) => errors.message);
     return res.status(422).send(errors);
   }
-  const token = req.headers.authorization?.replace("Bearer ", "");
-  const session = await db.collection("sessions").findOne({ token });
-  if (!session) return res.sendStatus(401);
 
-  res.locals.session = session;
-  //Pasa para o Controller
   next();
 }
