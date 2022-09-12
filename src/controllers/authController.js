@@ -30,7 +30,7 @@ async function signIn(req, res) {
         userID: user._id,
         token,
       });
-      return res.status(201).send(token);
+      return res.status(201).send({ token: token, name: user.name });
     } catch (error) {
       console.log(error);
     }

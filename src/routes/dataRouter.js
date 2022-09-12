@@ -1,20 +1,30 @@
 import express from "express";
 import * as dataController from "../controllers/dataController.js";
-import { sessionValidationMiddleware } from "../middlewares/sessionValidationMiddleware.js";
+import * as sessionMiddleware from "../middlewares/sessionValidationMiddleware.js";
+
 const dataRouter = express.Router();
+
 dataRouter.get(
   "/transactions",
-  sessionValidationMiddleware,
+  sessionMiddleware.sessionTokenValidationMiddleware,
   dataController.getUserTransactions
+);
+dataRouter.delete(
+  "/transactions/:id",
+  sessionMiddleware.sessionTokenValidationMiddleware,
+  dataController.deleteUserTransaction
 );
 dataRouter.post(
   "/transactions/incomes",
-  sessionValidationMiddleware,
+  sessionMiddleware.schemaSessionValidationMiddleware,
+  sessionMiddleware.sessionTokenValidationMiddleware,
   dataController.addTransactionIncome
 );
 dataRouter.post(
   "/transactions/outcomes",
-  sessionValidationMiddleware,
+  sessionMiddleware.schemaSessionValidationMiddleware,
+  sessionMiddleware.sessionTokenValidationMiddleware,
   dataController.addTransactionOutcome
 );
+
 export default dataRouter;
